@@ -1,7 +1,9 @@
+#excluse file name match
 excludes:
   - "assets"
   - "journals"
   - "logseq"
   - "pages"
   - "whiteboards"
-fileDir: "E:\Archive\Note1"
+#  - md file root folder
+fileDir: "E:\\Archive\\Note"

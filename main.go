@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/gookit/goutil/arrutil"
 	"github.com/gookit/goutil/fsutil"
 	markdown2 "github.com/shurcooL/markdownfmt/markdown"
@@ -14,9 +15,14 @@ import (
 var confs *Conf
 var outFolderName string
 var oriFolderName string
+var err error
 
 func main() {
-	confs = readConf()
+	confs, err = readConf()
+	if err != nil {
+		return
+	}
+
 	exists := fsutil.IsDir(confs.FileDir)
 	if !exists {
 		panic("the dir is not exist in conf, please check it")
@@ -46,18 +52,18 @@ func handleContent(path string) {
 
 	file, err := os.ReadFile(path)
 	if err != nil {
-		println("read file fail", err)
+		fmt.Println("read file fail", err)
 		return
 	}
 	process, err := markdown2.Process(path, file, nil)
 	if err != nil {
-		println("markdown format fail", err)
+		fmt.Println("markdown format fail", err)
 		return
 	}
 	filename := strings.Replace(path, oriFolderName, outFolderName, 1)
 	err = os.MkdirAll(filepath.Dir(filename), 0755)
 	if err != nil {
-		println("create new Dir fail", err)
+		fmt.Println("create new Dir fail", err)
 		return
 	}
 	var buf = bytes.Buffer{}
@@ -65,30 +71,28 @@ func handleContent(path string) {
 	buf.Write(process)
 	err = os.WriteFile(filename, buf.Bytes(), 0755)
 	if err != nil {
-		println("write file fail", err)
+		fmt.Println("write file fail", err)
 		recover()
 		return
 	}
-	//println(process)
 }
 
-func readConf() *Conf {
+func readConf() (*Conf, error) {
 	var conf = Conf{}
 	executable, err := os.Executable()
 	if err != nil {
-		return &Conf{}
+		return nil, err
 	}
 	dir := filepath.Dir(executable)
 	file, err := os.ReadFile(dir + "./conf.yml")
 	if err != nil {
-		println("read conf file fail "+
-			"", err)
-		return &Conf{}
+		fmt.Println("read conf file fail", err)
+		return nil, err
 	}
 	err = yaml.Unmarshal(file, &conf)
 	if err != nil {
-		println("parse conf fail", err)
-		return &Conf{}
+		fmt.Println("parse conf fail", err)
+		return nil, err
 	}
-	return &conf
+	return &conf, nil
 }
