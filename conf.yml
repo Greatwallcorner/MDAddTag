@@ -1,0 +1,7 @@
+excludes:
+  - "assets"
+  - "journals"
+  - "logseq"
+  - "pages"
+  - "whiteboards"
+fileDir: "E:\Archive\Note1"
